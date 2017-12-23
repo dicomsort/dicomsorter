@@ -1,9 +1,10 @@
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
+import dicomsorter
 
 setup(
     name='dicomsorter',
-    version='0.0.1',
+    version=dicomsorter.__version__,
     description='Python library for sorting DICOM images',
     long_description='Python library for sorting DICOM images',
     url='https://github.com/suever/dicomsorter',
