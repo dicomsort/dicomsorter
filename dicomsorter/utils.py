@@ -1,7 +1,7 @@
 import os
 import re
 
-RE_INVALID_CHARS = re.compile('[\\/\:\*\?\"\<\>\|]+')
+RE_INVALID_CHARS = re.compile('[\\\\/\:\*\?\"\<\>\|]+')
 
 
 def clean_directory_name(directory, replacement='_'):

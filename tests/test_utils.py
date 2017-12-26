@@ -2,7 +2,7 @@
 
 import os
 
-from dicomsorter.utils import groups_of
+from dicomsorter.utils import groups_of, clean_filepath
 
 
 class TestGroupsOf:
@@ -25,3 +25,41 @@ class TestGroupsOf:
         """Check that padding slots are filled with None."""
         array = [1, 2, 3, 4, 5, 6]
         assert groups_of(array, 4) == [(1, 2, 3, 4), (5, 6, None, None)]
+
+
+class TestCleanFilepath:
+    """Test function for sanitizing file paths."""
+
+    def test_with_valid_chars(self):
+        """Check that a valid path remains unchanged."""
+        filepath = os.path.join('Users', 'testuser', 'folder', 'file')
+        assert clean_filepath(filepath) == filepath
+
+    def test_with_invalid_chars(self):
+        """Ensure that invalid characters are replaced by an underscore."""
+
+        invalid_chars = ':|<>"?*'
+
+        for char in invalid_chars:
+            filepath = os.path.join('Users%s' % char,
+                                    'test%suser' % char,
+                                    'file%sname' % char)
+
+            expected = os.path.join('Users_', 'test_user', 'file_name')
+
+            assert clean_filepath(filepath) == expected
+
+    def test_replacement_char(self):
+        """If we provide a replacement character, it should be used."""
+
+        invalid_chars = ':|<>"?*'
+
+        for char in invalid_chars:
+            filepath = os.path.sep.join(['Users%s' % char,
+                                         'test%suser' % char,
+                                         'file%sname' % char])
+
+            expected = os.path.join('Users-', 'test-user', 'file-name')
+
+            assert clean_filepath(filepath, '-') == expected
+
