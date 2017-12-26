@@ -2,7 +2,11 @@
 
 import os
 
-from dicomsorter.utils import groups_of, clean_filepath
+from dicomsorter.utils import (
+    groups_of,
+    clean_filepath,
+    recursive_string_interpolation
+)
 
 
 class TestGroupsOf:
@@ -63,3 +67,41 @@ class TestCleanFilepath:
 
             assert clean_filepath(filepath, '-') == expected
 
+
+class TestRecursiveStringInterpolation:
+    """Test functionality of performing string interpolation recursively."""
+
+    def test_with_no_interpolation(self):
+        """No interpolation causes no substution."""
+
+        string = '123abcABC890'
+        assert recursive_string_interpolation(string, {}) == string
+
+
+    def test_single_interpolation(self):
+        """Test normal string interpolation."""
+
+        string = '123%(Key)s456'
+        params = { 'Key': 'Value' }
+
+        assert recursive_string_interpolation(string, params) == string % params
+
+    def test_recursive_interpolation(self):
+        """Ensure that string interpolation is performed twice."""
+
+        string = '123%(Key)s456'
+        params = { 'Key': 'Key2', 'Key2': 'Value' }
+
+        expected = (string % params) % params
+
+        assert recursive_string_interpolation(string, params) == expected
+
+    def test_recursive_depth_limit(self):
+        """Ensure that interpolation stops at a certain depth."""
+
+        string = '123%(Key)s456'
+
+        # Set the params so it loops infinitely
+        params = { 'Key': '%(Key)s' }
+
+        assert recursive_string_interpolation(string, params) == string
