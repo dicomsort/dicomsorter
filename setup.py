@@ -34,7 +34,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'dicomsort = dicomsorter.cli:main',
+            'dicomsorter = dicomsorter.cli:main',
         ],
     },
 )
