@@ -7,7 +7,7 @@ setup(
     version=dicomsorter.__version__,
     description='Python library for sorting DICOM images',
     long_description='Python library for sorting DICOM images',
-    url='https://github.com/suever/dicomsorter',
+    url='https://github.com/dicomsort/dicomsorter',
     author='Jonathan Suever',
     author_email='suever@gmail.com',
     license='MIT',
@@ -25,5 +25,16 @@ setup(
     ],
     keywords='dicom medical images',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-    install_requires=['pydicom == 0.9.9'],
+    install_requires=[
+        'fasteners==0.14.1',
+        'pathlib==1.0.1',
+        'pathos==0.2.2.1',
+        'pydicom == 1.2.0',
+        'tqdm==4.28.1'
+    ],
+    entry_points={
+        'console_scripts': [
+            'dicomsort = dicomsorter.cli:main',
+        ],
+    },
 )

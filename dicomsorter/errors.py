@@ -1,0 +1,2 @@
+class DicomsorterException(Exception):
+    pass

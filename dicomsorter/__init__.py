@@ -1,1 +1,3 @@
-__version__ = '0.0.1'
+from config import logger
+
+__version__ = '1.0.0a1'
