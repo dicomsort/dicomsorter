@@ -23,50 +23,49 @@ class DICOMSorter(object):
 
         # Eager-load all filenames mainly so we have the total count
         dcm_files = [dcm for dcm in dcm_list if dcm]
+        iterator = pool.imap(self.sort, dcm_files)
 
-        if not self.config.verbose:
-            for _ in tqdm.tqdm(pool.imap(self.sort, dcm_files), total=len(dcm_files)):
-                pass
+        # If we aren't going to be showing output for each file, then show the progress bar
+        if not self.config.verbose and not self.config.dry_run:
+            iterator = tqdm.tqdm(iterator, total=len(dcm_files))
+
+        for _ in iterator:
+            pass
+
+    def destination(self, source_filename, dicom):
+        if self.config.original_filename:
+            filename = os.path.basename(source_filename)
         else:
-            for _ in pool.imap(self.sort, dcm_files):
-                pass
+            filename = dicom.format(self.config.filename_format)
+
+        directories = map(lambda x: clean_directory_name(dicom[x]), self.config.path)
+        output_directory = os.path.join(self.config.output_directory, *directories)
+
+        return os.path.join(output_directory, filename)
+
+    def perform_operation(self, source, destination):
+        mkdir_p(os.path.dirname(destination))
+
+        if not self.config.overwrite:
+            destination = self.find_unique_filename(destination)
+
+        if self.config.move:
+            shutil.move(source, destination)
+        else:
+            shutil.copyfile(source, destination)
+
+        logger.debug('%s -> %s', source, destination)
 
     def sort(self, source_filename):
         try:
             dicom = DICOM(source_filename)
 
-            # TODO: Apply anonymization
-
-            if self.config.original_filename:
-                filename = os.path.basename(source_filename)
-            else:
-                filename = dicom.format(self.config.filename_format)
-
-            directories = map(lambda x: clean_directory_name(dicom[x]), self.config.path)
-
-            output_directory = os.path.join(
-                self.config.output_directory,
-                *directories
-            )
-
-            destination = os.path.join(output_directory, filename)
+            destination = self.destination(source_filename, dicom)
 
             if self.config.dry_run:
                 logger.info('%s -> %s', source_filename, destination)
-                return
-
-            mkdir_p(output_directory)
-
-            if not self.config.overwrite:
-                commit = (not self.config.dry_run)
-                destination = self.find_unique_filename(destination, commit=commit)
-
-            if self.config.move:
-                shutil.move(source_filename, destination)
             else:
-                shutil.copyfile(source_filename, destination)
-
-            logger.debug('%s -> %s', source_filename, destination)
+                self.perform_operation(source_filename, destination)
         except Exception as e:
             logger.error(e)
             pass
