@@ -136,6 +136,7 @@ def main():
         run()
     except DicomsorterException as error:
         print('ERROR: %s' % error.message, file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == '__main__':
