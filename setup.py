@@ -26,11 +26,11 @@ setup(
     keywords='dicom medical images',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
     install_requires=[
-        'fasteners==0.14.1',
-        'pathlib==1.0.1',
-        'pathos==0.2.2.1',
+        'fasteners>=0.14',
+        'pathlib',
+        'pathos>=0.2',
         'pydicom == 1.2.0',
-        'tqdm==4.28.1'
+        'tqdm>=4.28'
     ],
     entry_points={
         'console_scripts': [
