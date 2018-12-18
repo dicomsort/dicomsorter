@@ -9,16 +9,7 @@ RE_INVALID_CHARS = re.compile('[\\\\/\:\*\?\"\<\>\|]+')
 
 def clean_directory_name(directory, replacement='_'):
     """Scrub invalid characters from a filename."""
-
     return re.sub(RE_INVALID_CHARS, replacement, directory)
-
-
-def clean_filepath(filepath, replacement='_'):
-    """Scrub invalid characters from a full file path."""
-
-    filepath_parts = filepath.split(os.path.sep)
-    clean_parts = [clean_directory_name(part, replacement) for part in filepath_parts]
-    return os.path.join(*clean_parts)
 
 
 def filename_generator(filename):
@@ -26,6 +17,7 @@ def filename_generator(filename):
     yield filename
 
     name, extension = os.path.splitext(filename)
+    extension = extension or ''
 
     counter = 2
 
@@ -46,11 +38,6 @@ def find_unique_filename(filename, commit=True):
             Path(filename).touch()
 
         return filename
-
-
-def groups_of(iterable, n):
-    """Group an iterable into groups of N items."""
-    return map(None, *[iter(iterable), ] * n)
 
 
 def mkdir_p(path):
