@@ -2,11 +2,15 @@
 from setuptools import setup, find_packages
 import dicomsorter
 
+with open('README.md', 'r') as fid:
+    long_description = fid.read()
+
 setup(
     name='dicomsorter',
     version=dicomsorter.__version__,
     description='Python library for sorting DICOM images',
-    long_description='Python library for sorting DICOM images',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/dicomsort/dicomsorter',
     author='Jonathan Suever',
     author_email='suever@gmail.com',
@@ -22,6 +26,7 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        "Operating System :: OS Independent",
     ],
     keywords='dicom medical images',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
