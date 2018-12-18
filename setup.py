@@ -1,15 +1,17 @@
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 import dicomsorter
+import os
 
-with open('README.md', 'r') as fid:
-    long_description = fid.read()
+BASE_PATH = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(BASE_PATH, 'README.md')) as fid:
+    LONG_DESCRIPTION = fid.read()
 
 setup(
     name='dicomsorter',
     version=dicomsorter.__version__,
     description='Python library for sorting DICOM images',
-    long_description=long_description,
+    long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
     url='https://github.com/dicomsort/dicomsorter',
     author='Jonathan Suever',
