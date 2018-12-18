@@ -1,6 +1,12 @@
 import logging
 import sys
 
+DEFAULTS = {
+    'filename_format': '%(ImageType)s (%(InstanceNumber)04d)%(Extension)s',
+    'path': ['SeriesDescription'],
+    'concurrency': 2
+}
+
 logger = logging.getLogger('dicomsorter')
 logger.setLevel(logging.INFO)
 

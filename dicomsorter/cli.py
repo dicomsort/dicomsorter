@@ -9,7 +9,7 @@ import sys
 import textwrap
 
 from . import __version__
-from .config import logger
+from .config import logger, DEFAULTS
 from .dicom_utils import available_fields
 from .dicomsorter import DICOMSorter
 from .errors import DicomsorterException
@@ -44,13 +44,13 @@ def run():
     parser.add_argument(
         '--path',
         nargs='+',
-        default=['SeriesDescription'],
+        default=DEFAULTS['path'],
         help='a list of dicom fields to sort images by. Example: --path PatientName SeriesDescription'
     )
 
     parser.add_argument(
         '--filename-format',
-        default='%(ImageType)s (%(InstanceNumber)04d)%(Extension)s',
+        default=DEFAULTS['filename_format'],
         help='format to use for the filename'
     )
 
@@ -93,8 +93,8 @@ def run():
     parser.add_argument(
         '--concurrency',
         type=int,
-        default=2,
-        help='number of threads to perform sorting (default: 2)'
+        default=DEFAULTS['concurrency'],
+        help='number of threads to perform sorting (default: %d)' % DEFAULTS['concurrency']
     )
 
     parser.add_argument(
@@ -137,7 +137,7 @@ def run():
             if result == 'N':
                 return
 
-    DICOMSorter(arguments).start()
+    DICOMSorter(**vars(arguments)).start()
 
 
 def main():
