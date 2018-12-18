@@ -53,8 +53,8 @@ def age_in_years(dcm):
         if dcm.PatientBirthDate == '':
             age = ''
         else:
-            age = '%03dY' % (int(dcm.StudyDate) -
-                             int(dcm.PatientBirthDate)) / 10000
+            age = '%03dY' % ((int(dcm.StudyDate) -
+                              int(dcm.PatientBirthDate)) / 10000)
     else:
         age = ''
 
