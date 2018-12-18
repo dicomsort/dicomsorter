@@ -1,12 +1,12 @@
 import pydicom
 import os
 
-from config import logger
-from errors import DicomsorterException
+from .config import logger
+from .errors import DicomsorterException
+from .utils import clean_directory_name, recursive_string_interpolation
+
 from pydicom.dicomdir import DicomDir
 from pydicom.errors import InvalidDicomError
-
-from utils import clean_directory_name, recursive_string_interpolation
 
 
 IMAGE_TYPE_MAP = {
@@ -85,7 +85,7 @@ def is_dicom(filename, load=True, ignore_dicomdir=True):
 def has_dicm_prefix(filename):
     with open(filename, 'rb') as fid:
         fid.seek(128)
-        return fid.read(4) == 'DICM'
+        return fid.read(4) == b'DICM'
 
 
 class DICOM:
@@ -133,7 +133,7 @@ class DICOM:
         except AttributeError:
             return 'Unknown'
 
-        for key, values in IMAGE_TYPE_MAP.iteritems():
+        for key, values in IMAGE_TYPE_MAP.items():
             if values.issubset(image_type):
                 return key
 

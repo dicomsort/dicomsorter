@@ -2,12 +2,12 @@ import os
 import shutil
 import tqdm
 
-from config import logger
-from dicom_utils import dicom_list, DICOM
+from .config import logger
+from .dicom_utils import dicom_list, DICOM
+from .utils import clean_directory_name, find_unique_filename, mkdir_p
 from fasteners.process_lock import interprocess_locked
 from pathos.multiprocessing import ProcessPool
 from tempfile import mktemp
-from utils import clean_directory_name, find_unique_filename, mkdir_p
 
 
 class DICOMSorter(object):

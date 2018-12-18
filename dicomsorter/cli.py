@@ -9,10 +9,12 @@ import sys
 import textwrap
 
 from . import __version__
-from config import logger
-from dicom_utils import available_fields
-from dicomsorter import DICOMSorter
-from errors import DicomsorterException
+from .config import logger
+from .dicom_utils import available_fields
+from .dicomsorter import DICOMSorter
+from .errors import DicomsorterException
+
+from six.moves import input
 
 
 def run():
@@ -130,7 +132,7 @@ def run():
                 --overwrite flag if you wish to preserve duplicate files.
                 """
             print(textwrap.dedent(message))
-            result = raw_input('Do you want to continue? [Y/n] ').upper() or 'Y'
+            result = input('Do you want to continue? [Y/n] ').upper() or 'Y'
 
             if result == 'N':
                 return
@@ -143,7 +145,7 @@ def main():
     try:
         run()
     except DicomsorterException as error:
-        print('ERROR: %s' % error.message, file=sys.stderr)
+        print('ERROR: %s' % error.args[0], file=sys.stderr)
         sys.exit(1)
 
 
