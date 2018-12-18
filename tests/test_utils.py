@@ -103,7 +103,7 @@ class TestFilenameGenerator:
         input_filename = os.path.join('this', 'is', 'a', 'path')
         generator = filename_generator(input_filename)
 
-        outputs = [generator.next() for _ in range(2)]
+        outputs = [next(generator) for _ in range(2)]
         expected = [input_filename, input_filename + ' (2)']
 
         assert outputs == expected
@@ -112,7 +112,7 @@ class TestFilenameGenerator:
         """The original filename should be returned on the first iteration."""
         input_filename = os.path.join('this', 'is', 'a', 'file.name')
         generator = filename_generator(input_filename)
-        assert generator.next() == input_filename
+        assert next(generator) == input_filename
 
     def test_with_multiple_iterations(self):
         """The filenames have incrementing suffixes."""
@@ -124,7 +124,7 @@ class TestFilenameGenerator:
         for k in range(9):
             expected.append(os.path.join('this', 'is', 'a', 'file (%d).name' % (k + 2)))
 
-        outputs = [generator.next() for _ in range(10)]
+        outputs = [next(generator) for _ in range(10)]
         assert outputs == expected
 
 
