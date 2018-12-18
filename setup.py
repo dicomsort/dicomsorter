@@ -36,7 +36,7 @@ setup(
         'fasteners>=0.14',
         'pathlib',
         'pathos>=0.2',
-        'pydicom == 1.2.0',
+        'pydicom >= 1.2.0',
         'tqdm>=4.28'
     ],
     entry_points={
