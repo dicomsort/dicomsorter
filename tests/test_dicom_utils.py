@@ -95,7 +95,7 @@ class TestAvailableFields:
 
         field_names = list(fields.keys())
         field_names.sort()
-        assert available_fields(tmpdir) == field_names
+        assert available_fields(str(tmpdir)) == field_names
 
 
 class TestAgeInYears:
@@ -155,7 +155,7 @@ class TestIsDicom:
 
 class TestHasDICMPrefix:
     def test_no_prefix(self, tmpdir):
-        filename = os.path.join(tmpdir, "invalid")
+        filename = str(tmpdir.join("invalid"))
         preamble = b"\x00" * 128
         with open(filename, "wb") as fid:
             fid.write(preamble + b"DACM")
@@ -163,7 +163,7 @@ class TestHasDICMPrefix:
         assert has_dicm_prefix(filename) == False
 
     def test_empty_file(self, tmpdir):
-        filename = os.path.join(tmpdir, "empty")
+        filename = str(tmpdir.join("empty"))
         with open(filename, "wb") as fid:
             fid.write(b"")
 
