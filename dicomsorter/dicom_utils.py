@@ -17,8 +17,7 @@ IMAGE_TYPE_MAP = {
 
 
 def available_fields(directory):
-    dicom = dicom_list(directory).next()
-    return dicom.dir()
+    return next(dicom_list(directory)).dir()
 
 
 def dicom_list(directory, load=True, ignore_dicomdir=True):
@@ -76,7 +75,7 @@ def is_dicom(filename, load=True, ignore_dicomdir=True):
 
         return dicom
     except IOError as e:
-        logger.warn(e)
+        logger.warning(e)
         return False
     except InvalidDicomError:
         return False
