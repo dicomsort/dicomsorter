@@ -1,6 +1,7 @@
 from faker import Faker
 from pydicom import Dataset, FileDataset
 from pydicom.uid import generate_uid
+from pydicom.sequence import Sequence
 from random import randint
 
 faker = Faker()
@@ -54,3 +55,32 @@ class DicomFactory:
 
         fields.update(kwargs)
         return cls.build(**fields)
+
+
+class DicomDirFactory:
+    '''Class for generating an *empty* DICOMDIR dataset'''
+
+    @classmethod
+    def build(cls):
+        file_meta = FileMetaFactory.build(
+            MediaStorageSOPClassUID='1.2.840.10008.1.3.10'
+        )
+
+        ds = Dataset()
+        ds.is_little_endian = True
+        ds.is_implicit_VR = False
+
+        seq_item = Dataset()
+        seq_item.update({
+            'OffsetOfTheNextDirectoryRecord': 0,
+            'RecordInUseFlag': 65535,
+            'OffsetOfReferencedLowerLevelDirectoryEntity': 0,
+            'DirectoryRecordType': 'PATIENT',
+            'PatientsName': faker.name(),
+            'PatientID': '1234'
+        })
+
+        ds.DirectoryRecordSequence = [seq_item]
+
+        ds.file_meta = file_meta
+        return ds
