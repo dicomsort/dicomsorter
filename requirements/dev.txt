@@ -8,6 +8,7 @@ wheel>=0.32.3
 # Testing
 pytest==7.2.1
 pytest-cov==4.0.0
+faker==17.4.0
 
 # Lint and code style
 black==23.1.0
