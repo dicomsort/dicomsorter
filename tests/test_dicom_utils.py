@@ -86,11 +86,11 @@ class TestAvailableFields:
         }
 
         dicom = DicomFactory.build(**fields)
-        dicom.save_as(os.path.join(tmpdir, 'image.dcm'), write_like_original=False)
+        dicom.save_as(str(tmpdir.join('image.dcm')), write_like_original=False)
 
         field_names = list(fields.keys())
         field_names.sort()
-        assert available_fields(tmpdir) == field_names
+        assert available_fields(str(tmpdir)) == field_names
 
 
 class TestAgeInYears:
@@ -122,7 +122,7 @@ class TestAgeInYears:
 
 class TestIsDicom:
     def test_non_dicom(self, tmpdir):
-        filename = os.path.join(tmpdir, 'invalid')
+        filename = str(tmpdir.join('invalid'))
         with open(filename, 'wb') as fid:
             fid.write(b'')
 
@@ -134,14 +134,14 @@ class TestIsDicom:
         assert(is_dicom(dicom_file) == False)
 
     def test_with_dicomdir(self, tmpdir):
-        filename = os.path.join(tmpdir, 'DICOMDIR')
+        filename = str(tmpdir.join('DICOMDIR'))
         dicomdir = DicomDirFactory.build()
         dicomdir.save_as(filename, write_like_original=False)
 
         assert(is_dicom(filename) == False)
 
     def test_with_load_dicomdir(self, tmpdir):
-        filename = os.path.join(tmpdir, 'DICOMDIR')
+        filename = str(tmpdir.join('DICOMDIR'))
         dicomdir = DicomDirFactory.build()
         dicomdir.save_as(filename, write_like_original=False)
 
@@ -150,7 +150,7 @@ class TestIsDicom:
 
 class TestHasDICMPrefix:
     def test_no_prefix(self, tmpdir):
-        filename = os.path.join(tmpdir, 'invalid')
+        filename = str(tmpdir.join('invalid'))
         preamble = b'\x00' * 128
         with open(filename, 'wb') as fid:
             fid.write(preamble + b'DACM')
@@ -158,7 +158,7 @@ class TestHasDICMPrefix:
         assert(has_dicm_prefix(filename) == False)
 
     def test_empty_file(self, tmpdir):
-        filename = os.path.join(tmpdir, 'empty')
+        filename = str(tmpdir.join('empty'))
         with open(filename, 'wb') as fid:
             fid.write(b'')
 
