@@ -8,6 +8,7 @@ wheel>=0.32.3
 # Testing
 pytest==4.0.2
 pytest-cov==2.6.0
+faker==1.0.1
 
 # Lint and code style
 flake8==3.6.0
