@@ -83,7 +83,7 @@ class TestAvailableFields:
 
         dicom = DicomFactory.build(**fields)
 
-        field_names = fields.keys()
+        field_names = list(fields.keys())
         field_names.sort()
         assert dicom.dir() == field_names
 
