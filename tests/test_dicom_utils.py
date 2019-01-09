@@ -60,7 +60,7 @@ class TestDicomList:
 
         assert len(all_dicoms) == 5
 
-        filenames = map(lambda x: x.filename, all_dicoms)
+        filenames = list(map(lambda x: x.filename, all_dicoms))
         filenames.sort()
         params["files"].sort()
 
