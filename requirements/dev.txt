@@ -1,13 +1,13 @@
 -r prod.txt
 
 # Building/Packaging
-setuptools>=40.6.3
+setuptools==67.4.0
 twine>=1.12.1
 wheel>=0.32.3
 
 # Testing
-pytest==4.0.2
-pytest-cov==2.6.0
+pytest==7.2.1
+pytest-cov==4.0.0
 
 # Lint and code style
-flake8==3.6.0
+flake8==6.0.0
