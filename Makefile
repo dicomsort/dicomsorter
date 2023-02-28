@@ -6,6 +6,7 @@ test:
 		--cov=dicomsorter \
 		--cov-report=html \
 		--cov-report=term \
+		--cov-report=xml \
 		tests
 
 reformat:
