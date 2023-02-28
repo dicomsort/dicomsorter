@@ -1,7 +1,9 @@
 # Always prefer setuptools over distutils
-from setuptools import setup, find_packages
-import dicomsorter
 import os
+
+from setuptools import find_packages, setup
+
+import dicomsorter
 
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(BASE_PATH, "README.md")) as fid:
