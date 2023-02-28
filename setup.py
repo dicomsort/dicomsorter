@@ -22,22 +22,21 @@ setup(
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
         "Operating System :: OS Independent",
     ],
     keywords='dicom medical images',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
     install_requires=[
-        'fasteners>=0.14',
-        'pathlib',
-        'pathos>=0.2',
-        'pydicom == 1.2.0',
-        'tqdm>=4.28'
+        'fasteners>=0.18',
+        'pathos>=0.3',
+        'pydicom>=2.3.0',
+        'tqdm>=4.64'
     ],
     entry_points={
         'console_scripts': [
