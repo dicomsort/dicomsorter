@@ -1,0 +1,20 @@
+name: lint
+on: push
+
+jobs:
+  flake8:
+    runs-on: ubuntu-latest
+    steps:
+      - name: setup python
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.10"
+      - uses: actions/checkout@v3
+      - name: install dependencies
+        run: pip install -r requirements/dev.txt
+      - name: flake8
+        uses: suo/flake8-github-action@releases/v1
+        with:
+          checkName: flake8
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
