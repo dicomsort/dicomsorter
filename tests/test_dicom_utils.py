@@ -1,6 +1,5 @@
 """Unit tests for dicom_utils module."""
 import os
-import tempfile
 
 import pytest
 from pydicom import Dataset
@@ -17,50 +16,12 @@ from dicomsorter.errors import DicomsorterException
 from .factories import DicomDirFactory, DicomFactory
 
 
-@pytest.fixture
-def dicom_folder():
-    folder = tempfile.mkdtemp(prefix="dicomsorter-test-")
-
-    # Number of images to create
-    def generate(number=5, dicomdir=False):
-        files = []
-
-        for k in range(number):
-            filename = os.path.join(folder, "Image%04d" % k)
-            dicom = DicomFactory.build_with_defaults()
-            dicom.save_as(filename, write_like_original=False)
-            files.append(filename)
-
-        # Add DicomDir file
-        if dicomdir:
-            dicomdir = DicomDirFactory.build()
-            filename = os.path.join(folder, "DICOMDIR")
-            dicomdir.save_as(filename, write_like_original=False)
-            files.append(filename)
-
-        return {"folder": folder, "files": files}
-
-    return generate
-
-
-@pytest.fixture
-def dicom_file(**kwargs):
-    filename = tempfile.mktemp()
-
-    dicom = DicomFactory.build_with_defaults(**kwargs)
-    dicom.save_as(filename, write_like_original=False)
-
-    yield filename
-
-    os.unlink(filename)
-
-
 class TestDicomList:
     def test_when_no_dicoms(self, dicom_folder):
         params = dicom_folder(number=0)
         message = 'No valid DICOMs found in "%(folder)s".' % params
 
-        with pytest.raises(DicomsorterException, message=message):
+        with pytest.raises(DicomsorterException, match=message):
             list(dicom_list(params["folder"]))
 
     def test_when_all_dicoms(self, dicom_folder):
@@ -73,12 +34,12 @@ class TestDicomList:
         filenames.sort()
         params["files"].sort()
 
-        assert filenames == params["files"]
+        assert filenames == [f.as_posix() for f in params["files"]]
 
     def test_when_invalid_directory(self):
         directory = "/not/a/directory"
         message = 'Directory "%s" does not exist.' % directory
-        with pytest.raises(DicomsorterException, message=message):
+        with pytest.raises(DicomsorterException, match=message):
             list(dicom_list(directory))
 
 
@@ -131,26 +92,26 @@ class TestIsDicom:
         with open(filename, "wb") as fid:
             fid.write(b"")
 
-        assert is_dicom(filename) == False
+        assert is_dicom(filename) is False
 
     def test_permissions_error(self, dicom_file):
-        os.chmod(dicom_file, 0)
+        dicom_file.chmod(0)
 
-        assert is_dicom(dicom_file) == False
+        assert is_dicom(dicom_file) is False
 
     def test_with_dicomdir(self, tmpdir):
         filename = os.path.join(tmpdir, "DICOMDIR")
         dicomdir = DicomDirFactory.build()
         dicomdir.save_as(filename, write_like_original=False)
 
-        assert is_dicom(filename) == False
+        assert is_dicom(filename) is False
 
     def test_with_load_dicomdir(self, tmpdir):
         filename = os.path.join(tmpdir, "DICOMDIR")
         dicomdir = DicomDirFactory.build()
         dicomdir.save_as(filename, write_like_original=False)
 
-        assert is_dicom(filename, ignore_dicomdir=False) != False
+        assert is_dicom(filename, ignore_dicomdir=False)
 
 
 class TestHasDICMPrefix:
@@ -160,14 +121,14 @@ class TestHasDICMPrefix:
         with open(filename, "wb") as fid:
             fid.write(preamble + b"DACM")
 
-        assert has_dicm_prefix(filename) == False
+        assert has_dicm_prefix(filename) is False
 
     def test_empty_file(self, tmpdir):
         filename = str(tmpdir.join("empty"))
         with open(filename, "wb") as fid:
             fid.write(b"")
 
-        assert has_dicm_prefix(filename) == False
+        assert has_dicm_prefix(filename) is False
 
     def test_with_valid_dicom(self, dicom_file):
-        assert has_dicm_prefix(dicom_file) == True
+        assert has_dicm_prefix(dicom_file) is True
