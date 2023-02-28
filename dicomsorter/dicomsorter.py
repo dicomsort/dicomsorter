@@ -16,20 +16,20 @@ class DICOMSorter(object):
     def __init__(self, **config):
         self.config = dict(DEFAULTS, **config)
 
-        self.dry_run = self.config.get('dry_run', False)
-        self.concurrency = self.config['concurrency']
+        self.dry_run = self.config.get("dry_run", False)
+        self.concurrency = self.config["concurrency"]
 
-        self.input_directory = self.config['input_directory']
-        self.output_directory = self.config['output_directory']
+        self.input_directory = self.config["input_directory"]
+        self.output_directory = self.config["output_directory"]
 
-        self.verbose = self.config.get('verbose', False)
-        self.original_filename = self.config.get('original_filename', False)
+        self.verbose = self.config.get("verbose", False)
+        self.original_filename = self.config.get("original_filename", False)
 
-        self.move = self.config.get('move', False)
-        self.overwrite = self.config.get('overwrite', False)
+        self.move = self.config.get("move", False)
+        self.overwrite = self.config.get("overwrite", False)
 
-        self.filename_format = self.config['filename_format']
-        self.path = self.config['path']
+        self.filename_format = self.config["filename_format"]
+        self.path = self.config["path"]
 
         self._lock = None
 
@@ -70,7 +70,7 @@ class DICOMSorter(object):
         else:
             shutil.copyfile(source, destination)
 
-        logger.debug('%s -> %s', source, destination)
+        logger.debug("%s -> %s", source, destination)
 
     def sort(self, source_filename):
         try:
@@ -79,7 +79,7 @@ class DICOMSorter(object):
             destination = self.destination(source_filename, dicom)
 
             if self.dry_run:
-                logger.info('%s -> %s', source_filename, destination)
+                logger.info("%s -> %s", source_filename, destination)
             else:
                 self.perform_operation(source_filename, destination)
         except Exception as e:

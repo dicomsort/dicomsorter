@@ -1,13 +1,12 @@
 import errno
 import os
 import re
-
 from pathlib import Path
 
-RE_INVALID_CHARS = re.compile('[\\\\/\:\*\?\"\<\>\|]+')
+RE_INVALID_CHARS = re.compile('[\\\\/:*?"<>|]+')
 
 
-def clean_directory_name(directory, replacement='_'):
+def clean_directory_name(directory, replacement="_"):
     """Scrub invalid characters from a filename."""
     return re.sub(RE_INVALID_CHARS, replacement, directory)
 
@@ -17,12 +16,12 @@ def filename_generator(filename):
     yield filename
 
     name, extension = os.path.splitext(filename)
-    extension = extension or ''
+    extension = extension or ""
 
     counter = 2
 
     while True:
-        yield ''.join([name, ' (', str(counter), ')', extension])
+        yield "".join([name, " (", str(counter), ")", extension])
         counter += 1
 
 

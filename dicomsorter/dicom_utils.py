@@ -1,19 +1,18 @@
-import pydicom
 import os
+
+import pydicom
+from pydicom.dicomdir import DicomDir
+from pydicom.errors import InvalidDicomError
 
 from .config import logger
 from .errors import DicomsorterException
 from .utils import clean_directory_name, recursive_string_interpolation
 
-from pydicom.dicomdir import DicomDir
-from pydicom.errors import InvalidDicomError
-
-
 IMAGE_TYPE_MAP = {
-    'Phase': {'P'},
-    '3DRecon': {'CSA 3D EDITOR'},
-    'Phoenix': {'CSA REPORT'},
-    'Magnitude': {'FFE', 'M'}
+    "Phase": {"P"},
+    "3DRecon": {"CSA 3D EDITOR"},
+    "Phoenix": {"CSA REPORT"},
+    "Magnitude": {"FFE", "M"},
 }
 
 
@@ -47,16 +46,15 @@ def dicom_list(directory, load=True, ignore_dicomdir=True):
 def age_in_years(dcm):
     """Compute the age of the patient in years."""
 
-    if 'PatientAge' in dcm:
+    if "PatientAge" in dcm:
         age = dcm.PatientAge
-    elif 'PatientBirthDate' in dcm:
-        if dcm.PatientBirthDate == '':
-            age = ''
+    elif "PatientBirthDate" in dcm:
+        if dcm.PatientBirthDate == "":
+            age = ""
         else:
-            age = '%03dY' % ((int(dcm.StudyDate) -
-                              int(dcm.PatientBirthDate)) / 10000)
+            age = "%03dY" % ((int(dcm.StudyDate) - int(dcm.PatientBirthDate)) / 10000)
     else:
-        age = ''
+        age = ""
 
     return age
 
@@ -66,12 +64,14 @@ def is_dicom(filename, load=True, ignore_dicomdir=True):
 
     try:
         dicom = pydicom.dcmread(filename) if load else has_dicm_prefix(filename)
-        if dicom and \
-                ignore_dicomdir and \
-                (
-                    isinstance(dicom, DicomDir) or
-                    os.path.basename(filename).lower() == 'dicomdir'
-                ):
+        if (
+            dicom
+            and ignore_dicomdir
+            and (
+                isinstance(dicom, DicomDir)
+                or os.path.basename(filename).lower() == "dicomdir"
+            )
+        ):
             return False
 
         return dicom
@@ -83,13 +83,12 @@ def is_dicom(filename, load=True, ignore_dicomdir=True):
 
 
 def has_dicm_prefix(filename):
-    with open(filename, 'rb') as fid:
+    with open(filename, "rb") as fid:
         fid.seek(128)
-        return fid.read(4) == b'DICM'
+        return fid.read(4) == b"DICM"
 
 
 class DICOM:
-
     def __init__(self, filename, dcm=None):
         """Takes a DICOM filename in and returns a helper class."""
 
@@ -98,7 +97,7 @@ class DICOM:
         self.dicom = dcm or is_dicom(self.filename)
 
         if not self.dicom:
-            raise DicomsorterException('%s is not a DICOM file' % filename)
+            raise DicomsorterException("%s is not a DICOM file" % filename)
 
         # Override some dataset attributes
         self.Extension = os.path.splitext(filename)[-1]
@@ -115,43 +114,43 @@ class DICOM:
             try:
                 value = getattr(self.dicom, attribute)
             except AttributeError:
-                value = ''
+                value = ""
 
         return value
 
     def enhanced_series_description(self):
-        return self.format('Series%(SeriesNumber)04d_%(SeriesDescription)s')
+        return self.format("Series%(SeriesNumber)04d_%(SeriesDescription)s")
 
     def format(self, format_string):
         # Format the DICOM in the specified way and clean the result
         return clean_directory_name(recursive_string_interpolation(format_string, self))
 
     def friendly_image_type(self):
-
         try:
             image_type = set(self.dicom.ImageType)
         except AttributeError:
-            return 'Unknown'
+            return "Unknown"
 
         for key, values in IMAGE_TYPE_MAP.items():
             if values.issubset(image_type):
                 return key
 
-        return 'Image'
+        return "Image"
 
     def patient_age_in_years(self):
         """Compute the age of the patient in years."""
 
-        if 'PatientAge' in self.dicom:
+        if "PatientAge" in self.dicom:
             age = self.dicom.PatientAge
-        elif 'PatientBirthDate' in self.dicom:
-            if self.dicom.PatientBirthDate == '':
-                age = ''
+        elif "PatientBirthDate" in self.dicom:
+            if self.dicom.PatientBirthDate == "":
+                age = ""
             else:
-                age = (int(self.dicom.StudyDate) -
-                       int(self.dicom.PatientBirthDate)) / 10000
-                age = '%03dY' % age
+                age = (
+                    int(self.dicom.StudyDate) - int(self.dicom.PatientBirthDate)
+                ) / 10000
+                age = "%03dY" % age
         else:
-            age = ''
+            age = ""
 
         return age
