@@ -10,9 +10,11 @@ test:
 
 reformat:
 	black .
+	isort .
 
 format-check:
 	black . --check
+	isort . --check
 
 flake8:
 	flake8 .

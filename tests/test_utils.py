@@ -1,9 +1,9 @@
 """Unit tests for utils module."""
 
 import os
-import pytest
-
 from pathlib import Path
+
+import pytest
 
 from dicomsorter.utils import (
     clean_directory_name,
