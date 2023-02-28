@@ -21,15 +21,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install Python dependencies
-        run: | 
-          pip install -r requirements/dev.txt
-          pip install coveralls
+        run: pip install -r requirements/dev.txt
 
       - name: Run tests
         run: make test
 
       - name: Report Coverage
+        uses: paambaati/codeclimate-action@v3.2.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          coveralls --service=github
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
