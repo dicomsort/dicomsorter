@@ -10,4 +10,6 @@ pytest==7.2.1
 pytest-cov==4.0.0
 
 # Lint and code style
+black==23.1.0
 flake8==6.0.0
+isort==5.12.0
