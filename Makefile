@@ -1,4 +1,4 @@
-.PHONY: test reformat format-check flake8 lint
+.PHONY: test reformat format-check flake8 lint type-check clean test-release release
 
 test:
 	pytest \
@@ -24,3 +24,15 @@ type-check:
 	mypy
 
 lint: type-check format-check flake8
+
+clean:
+	rm -rf dist
+
+dist:
+	python setup.py sdist
+
+test-release: clean dist
+	twine upload --repository testpypi dist/*
+
+release: clean dist
+	twine upload --repository pypi dist/*
