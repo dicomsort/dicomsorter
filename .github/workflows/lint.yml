@@ -11,7 +11,7 @@ jobs:
           python-version: "3.10"
       - uses: actions/checkout@v3
       - name: install dependencies
-        run: pip install -r requirements/dev.txt
+        run: pip install -r requirements.txt
       - name: format-check
         run: make format-check
 
@@ -24,7 +24,7 @@ jobs:
           python-version: "3.10"
       - uses: actions/checkout@v3
       - name: install dependencies
-        run: pip install -r requirements/dev.txt
+        run: pip install -r requirements.txt
       - name: flake8
         uses: suo/flake8-github-action@releases/v1
         with:
