@@ -33,6 +33,11 @@ setup(
     ],
     keywords="dicom medical images",
     packages=find_packages(exclude=["contrib", "docs", "tests"]),
+    package_data={
+        "dicomsorter": [
+            "py.typed",
+        ],
+    },
     install_requires=[
         "fasteners>=0.18",
         "pathos>=0.3",
