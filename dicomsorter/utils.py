@@ -2,16 +2,17 @@ import errno
 import os
 import re
 from pathlib import Path
+from typing import Any, Generator
 
 RE_INVALID_CHARS = re.compile('[\\\\/:*?"<>|]+')
 
 
-def clean_directory_name(directory, replacement="_"):
+def clean_directory_name(directory: str, replacement: str = "_") -> str:
     """Scrub invalid characters from a filename."""
     return re.sub(RE_INVALID_CHARS, replacement, directory)
 
 
-def filename_generator(filename):
+def filename_generator(filename: Path) -> Generator[Path, None, None]:
     """Creates filenames with increasing (version) number suffixes."""
     yield filename
 
@@ -21,16 +22,16 @@ def filename_generator(filename):
     counter = 2
 
     while True:
-        yield "".join([name, " (", str(counter), ")", extension])
+        yield Path("".join([name, " (", str(counter), ")", extension]))
         counter += 1
 
 
-def find_unique_filename(filename, commit=True):
+def find_unique_filename(filename: Path, commit: bool = True) -> Path:
     """Find an un-used filename and create it (if specified)."""
     generator = filename_generator(filename)
 
     for filename in generator:
-        if os.path.exists(filename):
+        if filename.exists():
             continue
 
         if commit:
@@ -38,19 +39,25 @@ def find_unique_filename(filename, commit=True):
 
         return filename
 
+    raise Exception("Should never be reached")
 
-def mkdir_p(path):
+
+def mkdir_p(path: Path) -> None:
     """Recursively make directories and ignore if they exist."""
     try:
-        os.makedirs(path)
+        path.mkdir(parents=True)
     except OSError as exception:
-        if exception.errno == errno.EEXIST and os.path.isdir(path):
+        if exception.errno == errno.EEXIST and path.is_dir():
             pass
         else:
             raise
 
 
-def recursive_string_interpolation(string, obj, max_depth=5):
+def recursive_string_interpolation(
+    string: str,
+    obj: Any,
+    max_depth: int = 5,
+) -> str:
     """Recursively perform string interpolation."""
 
     for iteration in range(max_depth):

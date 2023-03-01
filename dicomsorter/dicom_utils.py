@@ -1,6 +1,9 @@
 import os
+import pathlib
+from typing import Any, Dict, Generator, List, Optional, Set, Union
 
 import pydicom
+from pydicom import Dataset
 from pydicom.dicomdir import DicomDir
 from pydicom.errors import InvalidDicomError
 
@@ -8,7 +11,7 @@ from .config import logger
 from .errors import DicomsorterException
 from .utils import clean_directory_name, recursive_string_interpolation
 
-IMAGE_TYPE_MAP = {
+IMAGE_TYPE_MAP: Dict[str, Set[str]] = {
     "Phase": {"P"},
     "3DRecon": {"CSA 3D EDITOR"},
     "Phoenix": {"CSA REPORT"},
@@ -16,13 +19,20 @@ IMAGE_TYPE_MAP = {
 }
 
 
-def available_fields(directory):
-    return next(dicom_list(directory)).dir()
+def available_fields(directory: pathlib.Path) -> List[str]:
+    dcm = next(dicom_list(directory, load=True))
+    assert isinstance(dcm, Dataset), "Unexpected type"
+
+    return dcm.dir()
 
 
-def dicom_list(directory, load=True, ignore_dicomdir=True):
+def dicom_list(
+    directory: pathlib.Path,
+    load: bool = True,
+    ignore_dicomdir: bool = True,
+) -> Generator[Union[pathlib.Path, Dataset], None, None]:
     # Check the validity of the folder
-    if not os.path.exists(directory):
+    if not directory.exists():
         raise DicomsorterException('Directory "%s" does not exist.' % directory)
 
     count = 0
@@ -30,20 +40,26 @@ def dicom_list(directory, load=True, ignore_dicomdir=True):
     # Setup a generator
     for root, directories, files in os.walk(directory):
         for filename in files:
-            fullpath = os.path.join(root, filename)
+            fullpath = pathlib.Path(root).joinpath(filename)
             dicom = is_dicom(fullpath, load=load, ignore_dicomdir=ignore_dicomdir)
 
             if dicom:
                 count += 1
-                yield dicom if load else fullpath
 
-    # Raise a useful error message here if we didn't find any dicoms
+                if load is False:
+                    yield fullpath
+                else:
+                    assert isinstance(dicom, Dataset), "Unexpected data type"
+                    yield dicom
+
+    # Raise a useful error message here if we didn't find any DICOMs
     if count == 0:
         raise DicomsorterException('No valid DICOMs found in "%s".' % directory)
 
 
-def age_in_years(dcm):
+def age_in_years(dcm: Dataset) -> str:
     """Compute the age of the patient in years."""
+    age = ""
 
     if "PatientAge" in dcm:
         age = dcm.PatientAge
@@ -52,17 +68,21 @@ def age_in_years(dcm):
             age = ""
         else:
             age = "%03dY" % ((int(dcm.StudyDate) - int(dcm.PatientBirthDate)) / 10000)
-    else:
-        age = ""
 
     return age
 
 
-def is_dicom(filename, load=True, ignore_dicomdir=True):
+def is_dicom(
+    filename: pathlib.Path,
+    load: bool = True,
+    ignore_dicomdir: bool = True,
+) -> Union[bool, Dataset]:
     """Check whether a file is a DICOM object or not."""
+    if load is False:
+        return has_dicm_prefix(filename)
 
     try:
-        dicom = pydicom.dcmread(filename) if load else has_dicm_prefix(filename)
+        dicom = pydicom.dcmread(filename)
         if (
             dicom
             and ignore_dicomdir
@@ -81,22 +101,32 @@ def is_dicom(filename, load=True, ignore_dicomdir=True):
         return False
 
 
-def has_dicm_prefix(filename):
+def has_dicm_prefix(filename: pathlib.Path) -> bool:
     with open(filename, "rb") as fid:
         fid.seek(128)
         return fid.read(4) == b"DICM"
 
 
 class DICOM:
-    def __init__(self, filename, dcm=None):
+    dicom: Dataset
+    filename: pathlib.Path
+
+    def __init__(
+        self,
+        filename: pathlib.Path,
+        dcm: Optional[Dataset] = None,
+    ) -> None:
         """Takes a DICOM filename in and returns a helper class."""
 
         self.filename = filename
 
-        self.dicom = dcm or is_dicom(self.filename)
-
-        if not self.dicom:
+        ds = dcm or is_dicom(self.filename, load=True)
+        if ds is None or ds is False:
             raise DicomsorterException("%s is not a DICOM file" % filename)
+
+        assert isinstance(ds, Dataset), "Unexpected datatype"
+
+        self.dicom = ds
 
         # Override some dataset attributes
         self.Extension = os.path.splitext(filename)[-1]
@@ -104,7 +134,7 @@ class DICOM:
         self.PatientAge = self.patient_age_in_years()
         self.SeriesDescription = self.enhanced_series_description()
 
-    def __getitem__(self, attribute):
+    def __getitem__(self, attribute: str) -> Any:
         # First lookup the attribute in the current class and then default
         # back to the reference DICOM
         try:
@@ -117,14 +147,14 @@ class DICOM:
 
         return value
 
-    def enhanced_series_description(self):
+    def enhanced_series_description(self) -> str:
         return self.format("Series%(SeriesNumber)04d_%(SeriesDescription)s")
 
-    def format(self, format_string):
+    def format(self, format_string: str) -> str:
         # Format the DICOM in the specified way and clean the result
         return clean_directory_name(recursive_string_interpolation(format_string, self))
 
-    def friendly_image_type(self):
+    def friendly_image_type(self) -> str:
         try:
             image_type = set(self.dicom.ImageType)
         except AttributeError:
@@ -136,8 +166,9 @@ class DICOM:
 
         return "Image"
 
-    def patient_age_in_years(self):
+    def patient_age_in_years(self) -> str:
         """Compute the age of the patient in years."""
+        age = ""
 
         if "PatientAge" in self.dicom:
             age = self.dicom.PatientAge
@@ -145,11 +176,9 @@ class DICOM:
             if self.dicom.PatientBirthDate == "":
                 age = ""
             else:
-                age = (
+                computed_age = (
                     int(self.dicom.StudyDate) - int(self.dicom.PatientBirthDate)
                 ) / 10000
-                age = "%03dY" % age
-        else:
-            age = ""
+                age = "%03dY" % computed_age
 
         return age
