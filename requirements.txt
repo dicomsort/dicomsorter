@@ -1,1 +1,19 @@
--r requirements/prod.txt
+fasteners==0.18
+pathos==0.3.0
+pydicom==2.3.1
+tqdm==4.64.1
+
+# Building/Packaging
+setuptools==67.4.0
+twine>=1.12.1
+wheel>=0.32.3
+
+# Testing
+faker==17.4.0
+pytest-cov==4.0.0
+pytest==7.2.1
+
+# Lint and code style
+black==23.1.0
+flake8==6.0.0
+isort==5.12.0
