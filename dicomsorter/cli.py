@@ -4,20 +4,18 @@ from __future__ import print_function
 
 import argparse
 import logging
-import os
+import pathlib
 import sys
 import textwrap
 
-from six.moves import input
-
 from . import __version__
-from .config import DEFAULTS, logger
+from .config import Config, logger
 from .dicom_utils import available_fields
 from .dicomsorter import DICOMSorter
 from .errors import DicomsorterException
 
 
-def run():
+def run() -> None:
     parser = argparse.ArgumentParser(
         description="Sort DICOM Images into folders based upon their metadata"
     )
@@ -31,26 +29,26 @@ def run():
 
     parser.add_argument(
         "input_directory",
-        type=os.path.abspath,
+        type=pathlib.Path,
         help="directory to recursively search for DICOM images",
     )
 
     parser.add_argument(
         "output_directory",
-        type=os.path.abspath,
+        type=pathlib.Path,
         help="directory in which to place sorted DICOM images",
     )
 
     parser.add_argument(
         "--path",
         nargs="+",
-        default=DEFAULTS["path"],
+        default=Config.default_path(),
         help="a list of dicom fields to sort images by. Example: --path PatientName SeriesDescription",
     )
 
     parser.add_argument(
         "--filename-format",
-        default=DEFAULTS["filename_format"],
+        default=Config.filename_format,
         help="format to use for the filename",
     )
 
@@ -87,9 +85,8 @@ def run():
     parser.add_argument(
         "--concurrency",
         type=int,
-        default=DEFAULTS["concurrency"],
-        help="number of threads to perform sorting (default: %d)"
-        % DEFAULTS["concurrency"],
+        default=Config.concurrency,
+        help=f"number of threads to perform sorting (default: {Config.concurrency})",
     )
 
     parser.add_argument(
@@ -116,7 +113,7 @@ def run():
         raise DicomsorterException("--anonymize is not yet supported")
 
     if not arguments.force:
-        # Check if the user wants to move the files but they aren't preserving files
+        # Check if the user wants to move the files, but they aren't preserving files
         if arguments.move and arguments.overwrite and not arguments.dry_run:
             message = """
                 You have opted to move files from their original location and overwrite files
@@ -130,15 +127,16 @@ def run():
             if result == "N":
                 return
 
-    DICOMSorter(**vars(arguments)).start()
+    config = Config.from_dict(dict(**vars(arguments)))
+    DICOMSorter(config).start()
 
 
-def main():
+def main() -> None:
     """Wrapper that captures expected exceptions"""
     try:
         run()
     except DicomsorterException as error:
-        print("ERROR: %s" % error.args[0], file=sys.stderr)
+        logger.error(error)
         sys.exit(1)
 
 

@@ -20,4 +20,7 @@ format-check:
 flake8:
 	flake8 .
 
-lint: format-check flake8
+type-check:
+	mypy
+
+lint: type-check format-check flake8

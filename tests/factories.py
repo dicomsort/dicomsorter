@@ -1,7 +1,9 @@
 from random import randint
+from typing import Any
 
 from faker import Faker
 from pydicom import Dataset
+from pydicom.dataset import FileMetaDataset
 from pydicom.uid import generate_uid
 
 faker = Faker()
@@ -18,27 +20,33 @@ class FileMetaFactory:
     }
 
     @classmethod
-    def build(cls, **kwargs):
-        meta = Dataset()
-        meta.update(cls.DEFAULTS)
-        meta.update(kwargs)
+    def build(cls, **kwargs: Any) -> FileMetaDataset:
+        meta = FileMetaDataset()
+
+        fields = dict(cls.DEFAULTS)
+        fields.update(kwargs)
+
+        for field, value in fields.items():
+            setattr(meta, field, value)
+
         return meta
 
 
 class DicomFactory:
     @classmethod
-    def build(cls, **kwargs):
+    def build(cls, **kwargs: Any) -> Dataset:
         dicom = Dataset()
         dicom.file_meta = FileMetaFactory.build(**kwargs.pop("FileMeta", {}))
         dicom.is_implicit_VR = False
         dicom.is_little_endian = True
 
-        dicom.update(kwargs)
+        for field, value in kwargs.items():
+            setattr(dicom, field, value)
 
         return dicom
 
     @classmethod
-    def build_with_defaults(cls, **kwargs):
+    def build_with_defaults(cls, **kwargs: Any) -> Dataset:
         birth_date = faker.date_of_birth()
 
         fields = {
@@ -52,6 +60,7 @@ class DicomFactory:
         }
 
         fields.update(kwargs)
+
         return cls.build(**fields)
 
 
@@ -59,7 +68,7 @@ class DicomDirFactory:
     """Class for generating an *empty* DICOMDIR dataset"""
 
     @classmethod
-    def build(cls):
+    def build(cls) -> Dataset:
         file_meta = FileMetaFactory.build(
             MediaStorageSOPClassUID="1.2.840.10008.1.3.10"
         )
@@ -69,16 +78,17 @@ class DicomDirFactory:
         ds.is_implicit_VR = False
 
         seq_item = Dataset()
-        seq_item.update(
-            {
-                "OffsetOfTheNextDirectoryRecord": 0,
-                "RecordInUseFlag": 65535,
-                "OffsetOfReferencedLowerLevelDirectoryEntity": 0,
-                "DirectoryRecordType": "PATIENT",
-                "PatientsName": faker.name(),
-                "PatientID": "1234",
-            }
-        )
+        fields = {
+            "OffsetOfTheNextDirectoryRecord": 0,
+            "RecordInUseFlag": 65535,
+            "OffsetOfReferencedLowerLevelDirectoryEntity": 0,
+            "DirectoryRecordType": "PATIENT",
+            "PatientsName": faker.name(),
+            "PatientID": "1234",
+        }
+
+        for field, value in fields.items():
+            setattr(seq_item, field, value)
 
         ds.DirectoryRecordSequence = [seq_item]
 
