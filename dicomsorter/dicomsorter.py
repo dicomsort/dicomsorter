@@ -9,7 +9,7 @@ from pathos.multiprocessing import ProcessPool  # type: ignore[import]
 
 from .config import Config, logger
 from .dicom_utils import DICOM, dicom_list
-from .utils import clean_directory_name, find_unique_filename
+from .utils import clean_directory_name, find_unique_filename, mkdir_p
 
 
 class DICOMSorter(object):
@@ -53,7 +53,7 @@ class DICOMSorter(object):
         destination: pathlib.Path,
     ) -> None:
         # Ensure the enclosing directory exists
-        destination.parent.mkdir()
+        mkdir_p(destination.parent)
 
         if not self.config.overwrite:
             destination = self.find_unique_filename(destination)
