@@ -1,7 +1,7 @@
 fasteners==0.18
 pathos==0.3.0
 pydicom==2.3.1
-tqdm==4.64.1
+tqdm==4.66.3
 
 # Building/Packaging
 setuptools==67.4.0
