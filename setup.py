@@ -41,7 +41,7 @@ setup(
     install_requires=[
         "fasteners>=0.18",
         "pathos>=0.3",
-        "pydicom>=2.3.0",
+        "pydicom>=2.3.0,<4.0",
         "tqdm>=4.64",
     ],
     entry_points={

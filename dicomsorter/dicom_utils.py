@@ -4,8 +4,8 @@ from typing import Any, Dict, Generator, List, Optional, Set, Union
 
 import pydicom
 from pydicom import Dataset
-from pydicom.dicomdir import DicomDir
 from pydicom.errors import InvalidDicomError
+from pydicom.uid import MediaStorageDirectoryStorage
 
 from .config import logger
 from .errors import DicomsorterException
@@ -87,7 +87,8 @@ def is_dicom(
             dicom
             and ignore_dicomdir
             and (
-                isinstance(dicom, DicomDir)
+                dicom.file_meta.get("MediaStorageSOPClassUID", default=None)
+                == MediaStorageDirectoryStorage
                 or os.path.basename(filename).lower() == "dicomdir"
             )
         ):
