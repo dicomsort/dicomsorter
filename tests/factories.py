@@ -83,7 +83,7 @@ class DicomDirFactory:
             "RecordInUseFlag": 65535,
             "OffsetOfReferencedLowerLevelDirectoryEntity": 0,
             "DirectoryRecordType": "PATIENT",
-            "PatientsName": faker.name(),
+            "PatientName": faker.name(),
             "PatientID": "1234",
         }
 
