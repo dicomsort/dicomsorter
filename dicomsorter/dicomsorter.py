@@ -5,6 +5,7 @@ from tempfile import mktemp
 
 import tqdm
 from fasteners.process_lock import interprocess_locked  # type: ignore[import]
+from pathos.helpers import freeze_support  # type: ignore[import]
 from pathos.multiprocessing import ProcessPool  # type: ignore[import]
 
 from .config import Config, logger
@@ -22,6 +23,10 @@ class DICOMSorter(object):
         self._lock = None
 
     def start(self) -> None:
+        # Required for pathos multiprocessing on Windows
+        if sys.platform == "win32":
+            freeze_support()
+
         dcm_list = dicom_list(self.config.input_directory, load=False)
         pool = ProcessPool(self.config.concurrency)
 
