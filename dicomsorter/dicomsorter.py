@@ -29,11 +29,16 @@ class DICOMSorter(object):
             freeze_support()
 
         dcm_list = dicom_list(self.config.input_directory, load=False)
-        pool = ProcessPool(self.config.concurrency)
 
         # Eager-load all filenames mainly so we have the total count
         dcm_files = [dcm for dcm in dcm_list if dcm]
-        iterator = pool.imap(self.sort, dcm_files)
+
+        # Skip multiprocessing overhead when concurrency is 1
+        if self.config.concurrency == 1:
+            iterator = map(self.sort, dcm_files)
+        else:
+            pool = ProcessPool(self.config.concurrency)
+            iterator = pool.imap(self.sort, dcm_files)
 
         # If we aren't going to be showing output for each file, then show the progress bar
         if not self.config.verbose and not self.config.dry_run:
